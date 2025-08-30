@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include 'config.php';
 
 // Only admin can delete
 if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {

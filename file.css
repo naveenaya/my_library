@@ -1,0 +1,92 @@
+/* General Body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Header */
+h2, h3 {
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 20px;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    color: #3498db;
+    margin: 5px;
+}
+a:hover {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+/* Form Styling */
+form {
+    margin: 20px auto;
+    padding: 20px;
+    width: 400px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+form input, form textarea, form button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+form button {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+form button:hover {
+    background: #2980b9;
+}
+
+/* Table Styling */
+table {
+    border-collapse: collapse;
+    width: 90%;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+table th, table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+table th {
+    background: #3498db;
+    color: white;
+    font-weight: bold;
+}
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Buttons inside table */
+table form input[type="text"] {
+    width: 120px;
+}
+table form button {
+    width: auto;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+table a {
+    color: red;
+    font-size: 14px;
+}

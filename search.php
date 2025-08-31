@@ -54,11 +54,11 @@ $result = $stmt->get_result();
     <div class="card">
         <h3><?php echo $row['title']; ?></h3>
         <p><?php echo substr($row['description'], 0, 100) . "..."; ?></p>
-        <a href="view_post.php?id=<?php echo $row['id']; ?>">Read More</a>
+        <a href="viewpost.php?id=<?php echo $row['id']; ?>">Read More</a>
 
         <?php if ($_SESSION['role'] == 'admin'): ?>
-            | <a href="edit_post.php?id=<?php echo $row['id']; ?>">Edit</a>
-            | <a href="delete_post.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Delete this post?');">Delete</a>
+            | <a href="editpost.php?id=<?php echo $row['id']; ?>">Edit</a>
+            | <a href="deletepost.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Delete this post?');">Delete</a>
         <?php endif; ?>
     </div>
 <?php endwhile; ?>
@@ -74,7 +74,7 @@ $result = $stmt->get_result();
 </div>
 
 <?php if ($_SESSION['role'] == 'admin'): ?>
-    <a href="add_post.php">➕ Add New Book</a>
+    <a href="addpost.php">➕ Add New Book</a>
 <?php endif; ?>
 
 <a href="logout.php">Logout</a>

@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("ss", $title, $desc);
     $stmt->execute();
 
-    header("Location: search.php");
+    header("Location: viewpost.php");
 }
 ?>
 <form method="post">

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $update = $conn->prepare("UPDATE posts SET title=?, description=? WHERE id=?");
     $update->bind_param("ssi", $title, $desc, $id);
     $update->execute();
-    header("Location: search.php");
+    header("Location: viewpost.php");
 }
 ?>
 <form method="post">

@@ -35,9 +35,11 @@ $stmt = $conn->prepare($sql);
 if ($where === '') {
     $stmt->bind_param('ii', $limit, $offset);
 } else {
-    // bind search params first, then limit, offset
-    $bindTypes = $types . 'ii';
-    $stmt->bind_param($bindTypes, ...$params, $limit, $offset);
+    $bindTypes .= "ii"; 
+$params[] = $limit;
+$params[] = $offset;
+
+$stmt->bind_param($bindTypes, ...$params);
 }
 $stmt->execute();
 $res = $stmt->get_result();

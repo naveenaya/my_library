@@ -1,25 +1,11 @@
 <?php
 session_start();
-include 'config.php';
+include "db.php";
+if ($_SESSION['role'] != 'admin') die("Access denied.");
 
-// Only admin can delete
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
-    header("Location: login.php");
-    exit();
-}
+$id = $_GET['id'];
+$stmt = $conn->prepare("DELETE FROM posts WHERE id=?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
 
-if (!isset($_GET['id'])) {
-    header("Location: viewpost.php");
-    exit();
-}
-
-$id = intval($_GET['id']);
-$sql = "DELETE FROM posts WHERE id=$id";
-
-if ($conn->query($sql) === TRUE) {
-    header("Location: viewpost.php");
-    exit();
-} else {
-    echo "Error deleting post: " . $conn->error;
-}
-?>
+header("Location: search.php");

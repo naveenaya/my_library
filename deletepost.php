@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php";
+include "config.php";
 if ($_SESSION['role'] != 'admin') die("Access denied.");
 
 $id = $_GET['id'];

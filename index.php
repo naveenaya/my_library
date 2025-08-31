@@ -26,8 +26,8 @@ $res = $conn->query("SELECT * FROM books ORDER BY created_at DESC");
           <td><?= htmlspecialchars($r['category']) ?></td>
           <?php if ($_SESSION['role'] === 'admin'): ?>
             <td>
-              <a href="edit_book.php?id=<?= (int)$r['id'] ?>">Edit</a> |
-              <a href="delete_book.php?id=<?= (int)$r['id'] ?>" onclick="return confirm('Delete book?')">Delete</a>
+              <a href="editbook.php?id=<?= (int)$r['id'] ?>">Edit</a> |
+              <a href="deletebook.php?id=<?= (int)$r['id'] ?>" onclick="return confirm('Delete book?')">Delete</a>
             </td>
           <?php endif; ?>
         </tr>

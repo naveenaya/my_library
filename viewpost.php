@@ -1,99 +1,119 @@
 <?php
 session_start();
-include 'config.php';
+require 'config.php';
+if (!isset($_SESSION['username'])) { header('Location: login.php'); exit; }
 
-// Number of posts per page
-$limit = 5; 
-
-// Get current page or set default
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($page < 1) $page = 1;
-
-// Calculate offset
+$role = $_SESSION['role'] ?? 'user';
+$limit = 5;
+$page = max(1, (int)($_GET['page'] ?? 1));
 $offset = ($page - 1) * $limit;
 
-// Handle search
-$search = "";
-$where = "";
-if (isset($_GET['search']) && $_GET['search'] != "") {
-    $search = $conn->real_escape_string($_GET['search']);
-    $where = "WHERE title LIKE '%$search%' OR description LIKE '%$search%'";
+$search = trim($_GET['search'] ?? '');
+$where = '';
+$params = [];
+$types = '';
+
+if ($search !== '') {
+    $where = "WHERE book_name LIKE ? OR author_name LIKE ? OR published_year LIKE ?";
+    $like = "%$search%";
+    $params = [$like, $like, $like];
+    $types = 'sss';
 }
 
-// Count total posts
-$countSql = "SELECT COUNT(*) AS total FROM posts $where";
-$countResult = $conn->query($countSql);
-$totalPosts = $countResult->fetch_assoc()['total'];
-$totalPages = ceil($totalPosts / $limit);
+// Count total
+$countSql = "SELECT COUNT(*) AS c FROM books $where";
+$stmt = $conn->prepare($countSql);
+if ($where !== '') { $stmt->bind_param($types, ...$params); }
+$stmt->execute();
+$total = $stmt->get_result()->fetch_assoc()['c'];
+$totalPages = max(1, (int)ceil($total / $limit));
+$stmt->close();
 
-// Fetch posts with search + pagination
-$sql = "SELECT * FROM posts $where ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
-$result = $conn->query($sql);
+// Fetch rows
+$sql = "SELECT * FROM books $where ORDER BY created_at DESC LIMIT ? OFFSET ?";
+$stmt = $conn->prepare($sql);
+if ($where === '') {
+    $stmt->bind_param('ii', $limit, $offset);
+} else {
+    // bind search params first, then limit, offset
+    $bindTypes = $types . 'ii';
+    $stmt->bind_param($bindTypes, ...$params, $limit, $offset);
+}
+$stmt->execute();
+$res = $stmt->get_result();
 ?>
-
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-    <title>View Posts</title>
-    <link rel="stylesheet" href="file.css">
+  <meta charset="utf-8">
+  <title>Books • My Library</title>
+  <link rel="stylesheet" href="file.css">
 </head>
 <body>
-    <h2>📚 Posts</h2>
+  <div class="container">
+    <div class="header">
+      <h2>Library Books</h2>
+      <div>
+        <span class="small">Logged in as <?=htmlspecialchars($_SESSION['username'])?> (<?=htmlspecialchars($role)?>)</span>
+      </div>
+    </div>
 
-    <!-- Search Form -->
-    <form method="get" action="viewpost.php">
-        <input type="text" name="search" placeholder="🔍 Search posts..." value="<?php echo htmlspecialchars($search); ?>">
-        <button type="submit">Search</button>
-    </form>
-    <br>
+    <div class="card">
+      <form method="get" style="display:flex; gap:8px; align-items:center;">
+        <input type="text" name="search" placeholder="Search by book / author / year" value="<?=htmlspecialchars($search)?>">
+        <button class="btn" type="submit">Search</button>
+        <?php if ($role === 'admin'): ?>
+          <a class="btn" href="addpost.php" style="margin-left:auto">➕ Add Book</a>
+        <?php endif; ?>
+      </form>
+    </div>
 
-    <?php if ($result->num_rows > 0) { ?>
-        <table border="1" cellpadding="8">
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr><th>#</th><th>Book Name</th><th>Author</th><th>Year</th><?php if ($role==='admin') echo '<th>Actions</th>'; ?></tr>
+        </thead>
+        <tbody>
+        <?php if ($res->num_rows === 0): ?>
+          <tr><td colspan="<?= $role==='admin' ? 5 : 4 ?>">No books found.</td></tr>
+        <?php else: ?>
+          <?php while($r = $res->fetch_assoc()): ?>
             <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Date</th>
-                <?php if ($_SESSION['role'] == 'admin') { ?>
-                    <th>Actions</th>
-                <?php } ?>
+              <td><?= (int)$r['id'] ?></td>
+              <td><?= htmlspecialchars($r['book_name']) ?></td>
+              <td><?= htmlspecialchars($r['author_name']) ?></td>
+              <td><?= htmlspecialchars($r['published_year']) ?></td>
+              <?php if ($role==='admin'): ?>
+                <td>
+                  <a href="editpost.php?id=<?= (int)$r['id'] ?>">Edit</a> |
+                  <a href="deletepost.php?id=<?= (int)$r['id'] ?>" onclick="return confirm('Delete this book?')">Delete</a>
+                </td>
+              <?php endif; ?>
             </tr>
-            <?php while ($row = $result->fetch_assoc()) { ?>
-                <tr>
-                    <td><?php echo $row['id']; ?></td>
-                    <td><?php echo $row['title']; ?></td>
-                    <td><?php echo $row['description']; ?></td>
-                    <td><?php echo $row['created_at']; ?></td>
-                    <?php if ($_SESSION['role'] == 'admin') { ?>
-                        <td>
-                            <a href="editpost.php?id=<?php echo $row['id']; ?>">✏ Edit</a> | 
-                            <a href="deletepost.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?')">🗑 Delete</a>
-                        </td>
-                    <?php } ?>
-                </tr>
-            <?php } ?>
-        </table>
+          <?php endwhile; ?>
+        <?php endif; ?>
+        </tbody>
+      </table>
 
-        <!-- Pagination -->
-        <div style="margin-top:15px;">
-            <?php if ($page > 1) { ?>
-                <a href="?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>">⬅ Prev</a>
-            <?php } ?>
+      <!-- Pagination -->
+      <div class="pager">
+        <?php if ($page > 1): ?>
+          <a href="?page=<?=$page-1?>&search=<?=urlencode($search)?>">Prev</a>
+        <?php endif; ?>
 
-            <?php for ($i = 1; $i <= $totalPages; $i++) { ?>
-                <a href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>" 
-                   style="<?php if($i==$page) echo 'font-weight:bold;'; ?>">
-                   <?php echo $i; ?>
-                </a>
-            <?php } ?>
+        <?php for ($i=1;$i<= $totalPages;$i++): ?>
+          <a class="<?= $i === $page ? 'active' : '' ?>" href="?page=<?=$i?>&search=<?=urlencode($search)?>"><?=$i?></a>
+        <?php endfor; ?>
 
-            <?php if ($page < $totalPages) { ?>
-                <a href="?page=<?php echo $page+1; ?>&search=<?php echo urlencode($search); ?>">Next ➡</a>
-            <?php } ?>
-        </div>
+        <?php if ($page < $totalPages): ?>
+          <a href="?page=<?=$page+1?>&search=<?=urlencode($search)?>">Next</a>
+        <?php endif; ?>
+      </div>
+    </div>
 
-    <?php } else { ?>
-        <p>No posts found.</p>
-    <?php } ?>
+    <div style="text-align:center; margin-top:14px;">
+      <a href="dashboard.php">← Dashboard</a> | <a href="logout.php">Logout</a>
+    </div>
+  </div>
 </body>
 </html>

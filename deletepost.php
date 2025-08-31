@@ -1,11 +1,13 @@
 <?php
 session_start();
-include "config.php";
-if ($_SESSION['role'] != 'admin') die("Access denied.");
+require 'config.php';
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') { header('Location: login.php'); exit; }
 
-$id = $_GET['id'];
-$stmt = $conn->prepare("DELETE FROM posts WHERE id=?");
-$stmt->bind_param("i", $id);
-$stmt->execute();
-
-header("Location: searchpost.php");
+$id = (int)($_GET['id'] ?? 0);
+if ($id > 0) {
+    $stmt = $conn->prepare("DELETE FROM books WHERE id=?");
+    $stmt->bind_param("i",$id);
+    $stmt->execute();
+}
+header('Location: viewpost.php');
+exit();

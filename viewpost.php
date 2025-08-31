@@ -66,8 +66,8 @@ $result = $conn->query($sql);
                     <td><?php echo $row['created_at']; ?></td>
                     <?php if ($_SESSION['role'] == 'admin') { ?>
                         <td>
-                            <a href="edit_post.php?id=<?php echo $row['id']; ?>">✏ Edit</a> | 
-                            <a href="delete_post.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?')">🗑 Delete</a>
+                            <a href="editpost.php?id=<?php echo $row['id']; ?>">✏ Edit</a> | 
+                            <a href="deletepost.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure?')">🗑 Delete</a>
                         </td>
                     <?php } ?>
                 </tr>

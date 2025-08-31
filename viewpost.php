@@ -19,7 +19,7 @@ $result = $conn->query($sql);
 <html>
 <head>
     <title>View Posts</title>
-    <link rel="stylesheet" href="file.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h2>Welcome, <?php echo htmlspecialchars($username); ?>!</h2>

@@ -12,7 +12,7 @@ $res = $conn->query("SELECT * FROM books ORDER BY created_at DESC");
 <div class="container">
   <div class="card">
     <h2>Books</h2>
-    <p><a href="dashboard.php">← Dashboard</a> <?php if ($_SESSION['role'] === 'admin') echo '| <a href="add_book.php">Add Book</a>'; ?></p>
+    <p><a href="dashboard.php">← Dashboard</a> <?php if ($_SESSION['role'] === 'admin') echo '| <a href="addbook.php">Add Book</a>'; ?></p>
 
     <table>
       <thead><tr><th>#</th><th>Title</th><th>Author</th><th>Year</th><th>Category</th><?php if ($_SESSION['role'] === 'admin') echo '<th>Action</th>'; ?></tr></thead>

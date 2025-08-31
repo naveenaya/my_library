@@ -8,4 +8,4 @@ $stmt = $conn->prepare("DELETE FROM posts WHERE id=?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 
-header("Location: viewpost.php");
+header("Location: searchpost.php");
